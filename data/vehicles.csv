@@ -1,0 +1,7 @@
+vehicle_id,cargo_type,priority,origin,destination,current_node,speed,status
+
+V001,medicine,1,N001,N007,N001,45.0,assigned
+V002,food,2,N002,N006,N002,40.0,in_transit
+V003,construction_material,3,N003,N005,N003,35.0,available
+V004,medicine,1,N004,N008,N004,30.0,delayed
+V005,agricultural_produce,3,N005,N009,N005,50.0,available

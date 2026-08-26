@@ -1,0 +1,7 @@
+shipment_id,cargo,priority,origin,destination,quantity,vehicle_id,eta,status
+
+S001,medicine,1,N001,N007,500,V001,2026-08-26T18:30:00,in_transit
+S002,food,2,N002,N006,1000,V002,2026-08-26T19:00:00,in_transit
+S003,construction_material,3,N003,N005,750,V003,2026-08-26T20:15:00,assigned
+S004,medicine,1,N004,N008,300,V004,2026-08-26T21:00:00,delayed
+S005,agricultural_produce,3,N005,N009,1200,V005,2026-08-26T22:00:00,pending

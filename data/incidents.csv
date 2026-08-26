@@ -1,0 +1,7 @@
+incident_id,road_id,type,severity,latitude,longitude,description,timestamp,verified
+
+I001,R001,landslide,high,27.4728,94.9120,Heavy landslide blocking part of the road,2026-08-26T14:30:00,true
+I002,R003,flood,medium,25.5788,91.8933,Water accumulation on road section,2026-08-26T13:15:00,true
+I003,R004,road_damage,critical,24.8170,93.9368,Severe road surface damage,2026-08-26T12:45:00,true
+I004,R002,weather,low,27.4890,95.0200,Heavy rainfall reported in the area,2026-08-26T11:20:00,false
+I005,R005,bridge_damage,high,23.8315,91.2868,Damage reported on bridge section,2026-08-26T10:10:00,true

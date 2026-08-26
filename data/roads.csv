@@ -1,0 +1,7 @@
+road_id,state,district,start_node,end_node,distance_km,road_condition,elevation,slope,soil_risk,historical_landslides,rainfall,flood_risk,status
+
+R001,Assam,Dibrugarh,N001,N002,12.5,moderate,245,8.2,0.72,4,180,0.65,open
+R002,Assam,Tinsukia,N002,N003,18.0,good,180,4.5,0.25,1,120,0.20,open
+R003,Meghalaya,East Khasi Hills,N003,N004,9.8,poor,520,12.5,0.81,7,240,0.35,restricted
+R004,Manipur,Imphal West,N004,N005,15.2,critical,610,15.0,0.90,9,310,0.78,blocked
+R005,Tripura,West Tripura,N005,N006,21.4,good,95,3.2,0.18,0,90,0.12,open
