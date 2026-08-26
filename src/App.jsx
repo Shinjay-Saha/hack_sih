@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { getHealth, getSummary, getDataset, getPrediction } from "./api";
 import Sidebar from "./components/Sidebar";
 import StatCard from "./components/StatCard";
 import RiskTable from "./components/RiskTable";
@@ -5,7 +7,135 @@ import RiskChart from "./components/RiskChart";
 import { roads, stats, incidents } from "./data/mockData";
 import "./App.css";
 
+function normalizeRoad(road) {
+  return {
+    id: road.road_id ?? road.id ?? "N/A",
+    name: road.road_name ?? road.name ?? road.road_id ?? "Unknown Road",
+    score: Number(
+      road.final_risk_score ??
+      road.road_risk_score ??
+      road.risk_score ??
+      road.score ??
+      0
+    ),
+    level: String(
+      road.risk_level ??
+      road.level ??
+      "LOW"
+    ).toUpperCase(),
+    incidents: Number(
+      road.incidents ??
+      road.incident_count ??
+      0
+    ),
+    status: String(
+      road.status ??
+      "OPEN"
+    ).toUpperCase(),
+  };
+}
+
+function normalizeIncident(incident) {
+  return {
+    id: incident.incident_id ?? incident.id ?? Math.random(),
+    type:
+      incident.incident_type ??
+      incident.type ??
+      incident.description ??
+      "Incident",
+    location:
+      incident.location ??
+      incident.road_id ??
+      "Unknown location",
+    severity: String(
+      incident.severity ??
+      "LOW"
+    ).toUpperCase(),
+    time:
+      incident.timestamp ??
+      incident.time ??
+      incident.date ??
+      "Recently",
+  };
+}
+
 function App() {
+  const [backendStatus, setBackendStatus] = useState("checking");
+  const [summary, setSummary] = useState(null);
+  const [apiError, setApiError] = useState(null);
+  const [backendRoads, setBackendRoads] = useState([]);
+  const [backendIncidents, setBackendIncidents] = useState([]);
+  const [prediction, setPrediction] = useState(null);
+  const [predictionLoading, setPredictionLoading] = useState(false);
+  const [predictionError, setPredictionError] = useState(null);
+  const roadStats = backendRoads.reduce(
+    (acc, road) => {
+      acc.total++;
+
+      if (road.level === "HIGH") {
+        acc.high++;
+      } else if (road.level === "MEDIUM") {
+        acc.medium++;
+      } else if (road.level === "LOW") {
+        acc.low++;
+      }
+
+      return acc;
+    },
+    {
+      total: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    }
+  );
+
+  async function handleSafestRoute() {
+    try {
+      setPredictionLoading(true);
+      setPredictionError(null);
+
+      const result = await getPrediction("R002");
+
+      console.log("PREDICTION:", result);
+
+      setPrediction(result.prediction);
+    } catch (error) {
+      console.error(error);
+      setPredictionError(error.message);
+    } finally {
+      setPredictionLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    async function connectBackend() {
+      try {
+        await getHealth();
+
+        setBackendStatus("connected");
+
+        const summaryData = await getSummary();
+        console.log("BACKEND SUMMARY:", summaryData);
+        setSummary(summaryData);
+
+        const roadsData = await getDataset("roads");
+        console.log("BACKEND ROADS:", roadsData);
+        setBackendRoads(roadsData.records.map(normalizeRoad));
+
+        const incidentsData = await getDataset("incidents");
+        console.log("BACKEND INCIDENTS:", incidentsData);
+        setBackendIncidents(incidentsData.records.map(normalizeIncident));
+
+      } catch (error) {
+        console.error(error);
+        setBackendStatus("error");
+        setApiError(error.message);
+      }
+    }
+
+    connectBackend();
+  }, []);
   return (
     <div className="app-layout">
       <Sidebar />
@@ -57,8 +187,16 @@ function App() {
             />
 
             <StatCard
+              title="Total Roads"
+              value={roadStats.total || stats.totalRoads}
+              subtitle="Currently monitored"
+              icon="▤"
+              type="blue"
+            />
+
+            <StatCard
               title="High Risk"
-              value={stats.highRisk}
+              value={roadStats.high || stats.highRisk}
               subtitle="Immediate attention"
               icon="⚠"
               type="red"
@@ -66,7 +204,7 @@ function App() {
 
             <StatCard
               title="Medium Risk"
-              value={stats.mediumRisk}
+              value={roadStats.medium || stats.mediumRisk}
               subtitle="Needs monitoring"
               icon="◈"
               type="yellow"
@@ -74,7 +212,7 @@ function App() {
 
             <StatCard
               title="Incidents"
-              value={stats.incidents}
+              value={backendIncidents.length || stats.incidents}
               subtitle="Reported incidents"
               icon="!"
               type="purple"
@@ -148,11 +286,11 @@ function App() {
               </div>
             </div>
 
-            <RiskChart />
+            <RiskChart roads={backendRoads} />
 
             <div className="risk-total">
               <span>Total monitored roads</span>
-              <strong>{stats.totalRoads}</strong>
+              <strong>{backendRoads.length || stats.totalRoads}</strong>
             </div>
           </div>
         </section>
@@ -170,7 +308,7 @@ function App() {
             </button>
           </div>
 
-          <RiskTable roads={roads} />
+          <RiskTable roads={backendRoads.length ? backendRoads : roads} />
         </section>
 
         {/* BOTTOM SECTION */}
@@ -188,7 +326,7 @@ function App() {
             </div>
 
             <div className="incident-list">
-              {incidents.map((incident, index) => (
+              {(backendIncidents.length ? backendIncidents : incidents).map((incident, index) => (
                 <div className="incident-item" key={index}>
                   <div className={`incident-icon ${incident.severity.toLowerCase()}`}>
                     {incident.severity === "HIGH" ? "!" : "•"}
@@ -245,13 +383,30 @@ function App() {
               </div>
 
               <div className="route-score">
-                <strong>21.31</strong>
-                <span>LOW RISK</span>
+                <strong>
+                  {prediction?.final_risk_score ?? "—"}
+                </strong>
+
+                <span>
+                  {prediction?.risk_level ?? "NOT CHECKED"}
+                </span>
               </div>
             </div>
 
-            <button className="safe-route-button">
-              Find Safest Route →
+            {predictionError && (
+              <p className="api-error">
+                {predictionError}
+              </p>
+            )}
+
+            <button
+              className="safe-route-button"
+              onClick={handleSafestRoute}
+              disabled={predictionLoading}
+            >
+              {predictionLoading
+                ? "Analyzing..."
+                : "Find Safest Route →"}
             </button>
           </div>
         </section>

@@ -14,45 +14,84 @@ function RiskTable({ roads }) {
         </thead>
 
         <tbody>
-          {roads.map((road) => (
-            <tr key={road.id}>
-              <td>
-                <strong>{road.id}</strong>
-              </td>
+          {roads.map((road) => {
+            const roadId = road.road_id ?? road.id ?? "N/A";
 
-              <td>{road.name}</td>
+            const roadName =
+              road.road_name ??
+              road.name ??
+              roadId;
 
-              <td>
-                <div className="score-cell">
-                  <strong>{road.score}</strong>
-                  <div className="score-bar">
-                    <div
-                      className={`score-fill ${road.level.toLowerCase()}`}
-                      style={{ width: `${road.score}%` }}
-                    ></div>
+            const score = Number(
+              road.final_risk_score ??
+              road.score ??
+              0
+            );
+
+            const level =
+              road.risk_level ??
+              road.level ??
+              "UNKNOWN";
+
+            const incidents =
+              road.incidents ??
+              road.incident_count ??
+              0;
+
+            const status =
+              road.status ??
+              "OPEN";
+
+            return (
+              <tr key={roadId}>
+                <td>
+                  <strong>{roadId}</strong>
+                </td>
+
+                <td>{roadName}</td>
+
+                <td>
+                  <div className="score-cell">
+                    <strong>{score.toFixed(2)}</strong>
+
+                    <div className="score-bar">
+                      <div
+                        className={`score-fill ${String(
+                          level
+                        ).toLowerCase()}`}
+                        style={{
+                          width: `${Math.min(Math.max(score, 0), 100)}%`,
+                        }}
+                      ></div>
+                    </div>
                   </div>
-                </div>
-              </td>
+                </td>
 
-              <td>
-                <span className={`risk-badge ${road.level.toLowerCase()}`}>
-                  {road.level}
-                </span>
-              </td>
+                <td>
+                  <span
+                    className={`risk-badge ${String(
+                      level
+                    ).toLowerCase()}`}
+                  >
+                    {level}
+                  </span>
+                </td>
 
-              <td>{road.incidents}</td>
+                <td>{incidents}</td>
 
-              <td>
-                <span
-                  className={`status-badge ${
-                    road.status === "OPEN" ? "open" : "restricted"
-                  }`}
-                >
-                  ● {road.status}
-                </span>
-              </td>
-            </tr>
-          ))}
+                <td>
+                  <span
+                    className={`status-badge ${String(status).toUpperCase() === "OPEN"
+                        ? "open"
+                        : "restricted"
+                      }`}
+                  >
+                    ● {String(status).toUpperCase()}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
