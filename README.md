@@ -1,15 +1,16 @@
-# NER Logistics Resilience
+# React + Vite
 
-AI-powered logistics and route resilience system for the North Eastern Region of India.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Project Status
+Currently, two official plugins are available:
 
-🚧 Under Development
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Team
+## React Compiler
 
-Hackathon project — SIH
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Objective
+## Expanding the ESLint configuration
 
-To improve transportation and delivery of essential goods in the North Eastern Region by considering road conditions, weather risks, incidents, vehicle availability, and route resilience.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
